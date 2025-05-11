@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metrics Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/styles.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1 class="text-center">Metrics Management</h1>
+      <div class="row mt-4">
+        <div class="col-md-10 offset-md-1">
+          <h3>Extracted Metrics (metric_table)</h3>
+          {% if message %}
+          <div class="alert alert-info">{{ message }}</div>
+          {% endif %}
+          {% if metrics %}
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Quarter</th>
+                <th>Metric Name</th>
+                <th>Value</th>
+                <th>Unit</th>
+                <th>Year</th>
+                <th>Category</th>
+                <th>Source Page</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for metric in metrics %}
+              <tr>
+                <td>{{ metric.quarter }}</td>
+                <td>{{ metric.metric_name }}</td>
+                <td>{{ metric.value }}</td>
+                <td>{{ metric.unit }}</td>
+                <td>{{ metric.year }}</td>
+                <td>{{ metric.category }}</td>
+                <td>{{ metric.source_page }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p>No metrics extracted yet. Upload a PDF to start.</p>
+          {% endif %}
+
+          <h3 class="mt-5">Manage Metrics to Extract</h3>
+          <form method="POST" action="{{ url_for('add_metric') }}" class="mb-4">
+            <div class="row">
+              <div class="col-md-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="metric_name"
+                  placeholder="Metric Name"
+                  required
+                />
+              </div>
+              <div class="col-md-4">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="pattern"
+                  placeholder="Regex Pattern (e.g., Revenue\s*₹?(\d+\.\d+)\s*Cr\.)"
+                  required
+                />
+              </div>
+              <div class="col-md-3">
+                <select class="form-control" name="category" required>
+                  <option value="Financial">Financial</option>
+                  <option value="Expense">Expense</option>
+                  <option value="Operational">Operational</option>
+                  <option value="Market">Market</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button type="submit" class="btn btn-success">
+                  Add Metric
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Metric Name</th>
+                <th>Pattern</th>
+                <th>Category</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for metric in user_metrics %}
+              <tr>
+                <td>{{ metric.metric_name }}</td>
+                <td>{{ metric.pattern }}</td>
+                <td>{{ metric.category }}</td>
+                <td>
+                  <button
+                    class="btn btn-warning btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editModal{{ metric.id }}"
+                  >
+                    Edit
+                  </button>
+                  <a
+                    href="{{ url_for('delete_metric', metric_id=metric.id) }}"
+                    class="btn btn-danger btn-sm"
+                    onclick="return confirm('Are you sure?')"
+                    >Delete</a
+                  >
+                </td>
+              </tr>
+              <!-- Edit Modal -->
+              <div
+                class="modal fade"
+                id="editModal{{ metric.id }}"
+                tabindex="-1"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Metric</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                      ></button>
+                    </div>
+                    <form
+                      method="POST"
+                      action="{{ url_for('edit_metric', metric_id=metric.id) }}"
+                    >
+                      <div class="modal-body">
+                        <div class="mb-3">
+                          <label class="form-label">Metric Name</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="metric_name"
+                            value="{{ metric.metric_name }}"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Pattern</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="pattern"
+                            value="{{ metric.pattern }}"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Category</label>
+                          <select class="form-control" name="category" required>
+                            <option value="Financial" {% if metric.category == "Financial" %}selected{% endif %}>Financial</option>
+                            <option value="Expense" {% if metric.category == "Expense" %}selected{% endif %}>Expense</option>
+                            <option value="Operational" {% if metric.category == "Operational" %}selected{% endif %}>Operational</option>
+                            <option value="Market" {% if metric.category == "Market" %}selected{% endif %}>Market</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </tbody>
+          </table>
+          <a href="{{ url_for('index') }}" class="btn btn-primary mt-3"
+            >Back to Home</a
+          >
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

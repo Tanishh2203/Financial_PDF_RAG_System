@@ -1,0 +1,9 @@
+flask
+pdfplumber 
+pytesseract
+pillow
+sentence-transformers
+faiss-cpu
+numpy
+pandas
+markdown
