@@ -29,9 +29,9 @@ This project is a **Financial PDF Retrieval-Augmented Generation (RAG) System**,
 ## Prerequisites
 Before running the project, ensure you have the following installed:
 
-- **Python 3.8+**: The project is built with Python.
+- **Python**: The project is built with Python.
 - **pip**: Python package manager for installing dependencies.
-- **Tesseract-OCR**: Required for pytesseract (though not currently used). Install it on your system:
+- **Tesseract-OCR**: Required for pytesseract. Install it on your system:
   - Windows: Download and install from [Tesseract GitHub](https://github.com/UB-Mannheim/tesseract/wiki).
   - Ubuntu: `sudo apt-get install tesseract-ocr`.
   - macOS: `brew install tesseract`.
